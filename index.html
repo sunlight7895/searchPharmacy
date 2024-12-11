@@ -6,16 +6,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
     <div class="container">
         <div class="navbar">
             <h2>약찾국기</h2>
-            <ul>
-                <li><a onclick="moveToLocation(37.5665, 126.9780)">서울</a></li>
-                <li><a onclick="moveToLocation(35.1796, 129.0756)">부산</a></li>
-                <li><a onclick="moveToLocation(37.4563, 126.7052)">인천</a></li>
-                <li><a onclick="moveToLocation(35.8722, 128.6025)">대구</a></li>
-            </ul>
+            <div class="navbar-right">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="지역을 검색하세요">
+                    <button onclick="searchLocation()">검색</button>
+                </div>
+                <ul>
+                    <li><a href="#">서울</a></li>
+                    <li><a href="#">부산</a></li>
+                    <li><a href="#">인천</a></li>
+                    <li><a href="#">대구</a></li>
+                </ul>
+            </div>
         </div>
 
         <!-- 지도 -->
@@ -40,52 +45,153 @@
             map.setCenter(moveLatLon);
         }
 
-        // 주소-좌표 변환 객체를 생성합니다
-        var geocoder = new kakao.maps.services.Geocoder();
+        // 검색을 통해 지역 이동 함수
+        function searchLocation() {
+            var geocoder = new kakao.maps.services.Geocoder();
+            var searchInput = document.getElementById('search-input').value;
 
-        // 주소로 좌표를 검색합니다
-        geocoder.addressSearch(' 서울특별시 동대문구 이문제1동 288-39', function(result, status) {
-            // 정상적으로 검색이 완료됐으면
-            if (status === kakao.maps.services.Status.OK) {
-
-                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-
-                // 결과값으로 받은 위치를 마커로 표시합니다
-                var marker = new kakao.maps.Marker({
-                    map: map,
-                    position: coords
-                });
-
-                // 인포윈도우로 장소에 대한 설명을 표시합니다
-                var infowindow = new kakao.maps.InfoWindow({
-                    content: '<div class="infowindow-content"><h2>외대조은약국</h2>연중 무휴</div>'
-                });
-
-                // 인포윈도우 열림 상태를 저장하는 변수
-                var isOpen = false;
-
-                // 마커 클릭 이벤트 리스너 추가
-                kakao.maps.event.addListener(marker, 'click', function() {
-                    if (isOpen) {
-                        infowindow.close(); // 인포윈도우 닫기
-                        isOpen = false; // 상태를 닫힌 상태로 변경
-                    } else {
-                        infowindow.open(map, marker); // 인포윈도우 열기
-                        isOpen = true; // 상태를 열린 상태로 변경
-                    }
-                });
-
-                // 지도 클릭 시 인포윈도우 닫기
-                kakao.maps.event.addListener(map, 'click', function() {
-                    infowindow.close();
-                    isOpen = false; // 상태를 닫힌 상태로 변경
-                });
-
-                // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-                map.setCenter(coords);
+            if (!searchInput.trim()) {
+                alert('검색어를 입력하세요.');
+                return;
             }
-        });
-    </script>
 
+            // 주소-좌표 변환
+            geocoder.addressSearch(searchInput, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    console.log("검색 결과:", result); // 검색 결과 디버깅용 출력
+                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    // 지도 중심 이동 및 줌 레벨 변경
+                    map.setCenter(coords); // 지도 중심 이동
+                    map.setLevel(3); // 줌 레벨 조정 (숫자가 작을수록 확대)
+
+                    alert(`${searchInput} 위치로 이동했습니다.`);
+                } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                    alert('검색 결과를 찾을 수 없습니다.');
+                    console.error("검색 결과 없음:", searchInput);
+                } else {
+                    alert('검색 중 오류가 발생했습니다.');
+                    console.error("검색 오류 상태:", status);
+                }
+            });
+        }
+
+        // Kakao 지도에 마커 추가 함수
+        function addMarkerToMap(address, name, holiday) {
+            var geocoder = new kakao.maps.services.Geocoder();
+
+            geocoder.addressSearch(address, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    // 마커 생성
+                    var marker = new kakao.maps.Marker({
+                        map: map,
+                        position: coords
+                    });
+
+                    // 인포윈도우 내용 설정
+                    var infowindow = new kakao.maps.InfoWindow({
+                        content: `<div class="infowindow-content">
+                                    <h2 class="infowindow-title">${name}</h2>
+                                    <p class="infowindow-detail">${holiday}</p>
+                                </div>`
+                    });
+
+
+                    // 인포윈도우 열림 상태 추적
+                    var isOpen = false;
+
+                    // 마커 클릭 이벤트 추가
+                    kakao.maps.event.addListener(marker, 'click', function () {
+                        if (isOpen) {
+                            infowindow.close(); // 인포윈도우 닫기
+                            isOpen = false; // 상태를 닫힌 상태로 변경
+                        } else {
+                            infowindow.open(map, marker); // 인포윈도우 열기
+                            isOpen = true; // 상태를 열린 상태로 변경
+                        }
+                    });
+
+                    // 지도 클릭 시 모든 인포윈도우 닫기
+                    kakao.maps.event.addListener(map, 'click', function () {
+                        infowindow.close();
+                        isOpen = false; // 상태를 닫힌 상태로 변경
+                    });
+                } else {
+                    console.error(`Failed to add marker for ${address}. Status: ${status}`);
+                }
+            });
+        }
+
+        // OpenAPI 데이터를 비동기로 로드
+        async function fetchPharmacyData() {
+            let pageNo = 1; // 페이지 번호 초기화
+            const numOfRows = 100; // 한 번에 가져올 데이터 수
+            const baseUrl = "https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire";
+            const serviceKey = "BnuszG%2FuKdNk206nTS03yPlRb1R8pQ6U7yM%2BsbEDoPQfq%2FmfMjNkAQPn5kM7G3omWf12aE%2Fv0UbisFPXVhkAcw%3D%3D";
+
+            try {
+                // 전체 데이터 개수 가져오기
+                const initialUrl = `${baseUrl}?ServiceKey=${serviceKey}&pageNo=1&numOfRows=1&_type=json`;
+                const initialResponse = await fetch(initialUrl);
+                const initialData = await initialResponse.json();
+
+                if (!initialData.response || !initialData.response.body) {
+                    console.error("Failed to fetch initial data structure:", initialData);
+                    return;
+                }
+
+                const totalCount = initialData.response.body.totalCount; // 전체 데이터 개수
+                console.log(`Total data count: ${totalCount}`);
+
+                // 전체 페이지 수 계산
+                const totalPages = Math.ceil(totalCount / numOfRows);
+                console.log(`Total pages to fetch: ${totalPages}`);
+
+                // 비동기로 데이터를 페이지별로 가져오기
+                for (let pageNo = 1; pageNo <= totalPages; pageNo++) {
+                    const url = `${baseUrl}?ServiceKey=${serviceKey}&pageNo=${pageNo}&numOfRows=${numOfRows}&_type=json`;
+                    fetchPageData(url);
+                }
+            } catch (error) {
+                console.error(`Error fetching data: ${error.message}`);
+            }
+        }
+
+        // 개별 페이지 데이터를 처리하는 함수
+        async function fetchPageData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error(`HTTP error! Status: ${response.status}`);
+                    return;
+                }
+
+                const data = await response.json();
+                if (!data.response || !data.response.body || !data.response.body.items || !data.response.body.items.item) {
+                    console.error("Invalid response structure:", data);
+                    return;
+                }
+
+                const items = data.response.body.items.item; // 약국 데이터 배열
+                console.log(`Fetched ${items.length} items`);
+
+                // 지도에 약국 표시
+                items.forEach(item => {
+                    const address = item.dutyAddr; // 주소
+                    const name = item.dutyName; // 약국 이름
+                    const holiday = item.dutyEtc || '없음'; // 부가 정보
+                    console.log(`Processing item: Address=${address}, Name=${name}, Holiday=${holiday}`);
+                    addMarkerToMap(address, name, holiday);
+                });
+            } catch (error) {
+                console.error(`Error fetching page data: ${error.message}`);
+            }
+        }
+
+        // 지도 및 데이터 로드
+        fetchPharmacyData();
+    </script>
 </body>
 </html>

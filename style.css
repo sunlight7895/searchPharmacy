@@ -1,57 +1,131 @@
-/* 페이지 기본 스타일 */
-html,
+/* 전체 페이지 설정 */
 body {
   margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
   font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
 }
 
-/* 레이아웃 스타일 */ 
+/* 컨테이너 스타일 */
 .container {
   display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
-/* 네브 바 스타일 */
+/* 네비게이션 바 스타일 */
 .navbar {
-  width: 250px;
-  background-color: #f8f9fa;
-  border-right: 1px solid #ddd;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 제목은 좌측, 나머지는 우측 정렬 */
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 네비게이션 제목 */
 .navbar h2 {
-  margin: 0 0 20px;
-  font-size: 20px;
-  color: #333;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
 }
 
+/* 네비게이션 목록 스타일 */
+/* 검색창 아래 네비게이션 목록 */
 .navbar ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  gap: 15px; /* 목록 아이템 간 간격 */
 }
 
 .navbar ul li {
-  margin-bottom: 15px;
+  display: inline;
 }
 
 .navbar ul li a {
   text-decoration: none;
-  color: #007bff;
+  color: white;
   font-size: 16px;
   cursor: pointer;
+  transition: color 0.3s;
 }
 
 .navbar ul li a:hover {
-  color: #0056b3;
+  color: #ffd700;
 }
 
-/* 지도 컨테이너 스타일 */
+/* 검색 바 스타일 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px; /* 검색창과 목록 사이 간격 */
+}
+
+.search-bar input {
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  width: 200px;
+  transition: box-shadow 0.3s;
+}
+
+.search-bar input:focus {
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8);
+}
+
+.search-bar button {
+  background-color: #ffd700;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+  background-color: #ffc107;
+}
+
+/* 지도 스타일 */
 #map {
-  flex: 1;
+  flex-grow: 1;
+  width: 100%;
+  height: calc(
+    100vh - 56px
+  ); /* 전체 화면 높이에서 네비게이션 바 높이를 뺀 값 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.infowindow-content {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.infowindow-title {
+  margin: 0;
+  font-size: 16px;
+  color: #007bff;
+}
+
+.infowindow-detail {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+/* 오른쪽 네비게이션 그룹 (목록과 검색창 포함) */
+.navbar-right {
+  display: flex;
+  align-items: center; /* 세로 정렬 중앙 */
+  gap: 10px; /* 목록과 검색창 사이 간격 */
 }
